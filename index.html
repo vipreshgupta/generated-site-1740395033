@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Typography */
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333333; /* Dark Gray */
+            background-color: #FFFFFF; /* White */
+            transition: background-color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #E0E0E0;
+        }
+
+        h1, h2, h3 {
+            color: #4A90E2; /* Soft Blue */
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #FFFFFF; /* White */
+            border-bottom: 1px solid #B0BEC5; /* Light Gray */
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .profile-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 1rem;
+        }
+
+        /* Main Area */
+        .main {
+            padding: 1rem;
+        }
+
+        /* Add Task Section */
+        .add-task-section {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .add-task-input {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px solid #B0BEC5; /* Light Gray */
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+
+        .add-task-button {
+            background-color: #F5A623; /* Coral */
+            color: #FFFFFF; /* White */
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-task-button:hover {
+            background-color: #e69512; /* Darker Coral */
+        }
+
+        /* Task Sections */
+        .task-section {
+            margin-bottom: 1rem;
+        }
+
+        .task-section h2 {
+            margin-bottom: 0.5rem;
+            color: #4A90E2; /* Soft Blue */
+        }
+
+        .task-card {
+            background-color: #FFFFFF; /* White */
+            border: 1px solid #B0BEC5; /* Light Gray */
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: grab;
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .task-card.completed {
+            background-color: #f0f0f0;
+            text-decoration: line-through;
+        }
+
+        .task-text {
+            flex-grow: 1;
+            margin-right: 0.5rem;
+        }
+
+        .task-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .task-checkbox {
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .task-edit, .task-delete, .task-undo {
+            cursor: pointer;
+            margin-left: 0.5rem;
+            color: #B0BEC5; /* Light Gray */
+            transition: color 0.3s ease;
+        }
+
+        .task-edit:hover, .task-delete:hover, .task-undo:hover {
+            color: #333333; /* Dark Gray */
+        }
+
+        /* Collapsible Sections */
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding-left: 1rem;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-icon {
+                margin-top: 0.5rem;
+            }
+
+            .add-task-section {
+                flex-direction: column;
+            }
+
+            .add-task-input {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>To-Do App</h1>
+        <div>
+            <span class="profile-icon"><i class="fas fa-user"></i></span>
+            <span class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></span>
+        </div>
+    </div>
+
+    <!-- Main Area -->
+    <div class="main">
+        <!-- Add Task Section -->
+        <div class="add-task-section">
+            <input type="text" class="add-task-input" placeholder="Add a new task...">
+            <button class="add-task-button" onclick="addTask()">Add Task</button>
+        </div>
+
+        <!-- Today’s Tasks -->
+        <div class="task-section">
+            <h2 class="collapsible" onclick="toggleCollapsible(this)">Today’s Tasks</h2>
+            <div class="collapsible-content active" id="today-tasks">
+                <!-- Tasks will be added here -->
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks -->
+        <div class="task-section">
+            <h2 class="collapsible" onclick="toggleCollapsible(this)">Upcoming Tasks</h2>
+            <div class="collapsible-content" id="upcoming-tasks">
+                <!-- Tasks will be added here -->
+            </div>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div class="task-section">
+            <h2 class="collapsible" onclick="toggleCollapsible(this)">Completed Tasks</h2>
+            <div class="collapsible-content" id="completed-tasks">
+                <!-- Tasks will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+
+            // Save the preference in localStorage
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Check for dark mode preference on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Function to add a new task
+        function addTask() {
+            const input = document.querySelector('.add-task-input');
+            const taskText = input.value.trim();
+            if (taskText === '') return;
+
+            const taskCard = createTaskCard(taskText);
+            document.getElementById('today-tasks').appendChild(taskCard);
+            input.value = '';
+        }
+
+        // Function to create a task card
+        function createTaskCard(taskText) {
+            const taskCard = document.createElement('div');
+            taskCard.classList.add('task-card');
+            taskCard.draggable = true;
+            taskCard.addEventListener('dragstart', handleDragStart);
+            taskCard.addEventListener('dragover', handleDragOver);
+            taskCard.addEventListener('drop', handleDrop);
+
+            const taskCheckbox = document.createElement('span');
+            taskCheckbox.classList.add('task-checkbox');
+            taskCheckbox.innerHTML = '<i class="far fa-circle"></i>';
+            taskCheckbox.addEventListener('click', () => toggleTaskCompletion(taskCard));
+
+            const taskTextSpan = document.createElement('span');
+            taskTextSpan.classList.add('task-text');
+            taskTextSpan.textContent = taskText;
+
+            const taskActions = document.createElement('div');
+            taskActions.classList.add('task-actions');
+
+            const taskEdit = document.createElement('span');
+            taskEdit.classList.add('task-edit');
+            taskEdit.innerHTML = '<i class="fas fa-edit"></i>';
+            taskEdit.addEventListener('click', () => editTask(taskTextSpan));
+
+            const taskDelete = document.createElement('span');
+            taskDelete.classList.add('task-delete');
+            taskDelete.innerHTML = '<i class="fas fa-trash"></i>';
+            taskDelete.addEventListener('click', () => deleteTask(taskCard));
+
+            taskActions.appendChild(taskEdit);
+            taskActions.appendChild(taskDelete);
+
+            taskCard.appendChild(taskCheckbox);
+            taskCard.appendChild(taskTextSpan);
+            taskCard.appendChild(taskActions);
+
+            return taskCard;
+        }
+
+        // Function to toggle task completion
+        function toggleTaskCompletion(taskCard) {
+            taskCard.classList.toggle('completed');
+            const checkbox = taskCard.querySelector('.task-checkbox i');
+            if (taskCard.classList.contains('completed')) {
+                checkbox.classList.remove('fa-circle');
+                checkbox.classList.add('fa-check-circle');
+                moveTaskToSection(taskCard, 'completed-tasks');
+            } else {
+                checkbox.classList.remove('fa-check-circle');
+                checkbox.classList.add('fa-circle');
+                moveTaskToSection(taskCard, 'today-tasks');
+            }
+        }
+
+        // Function to edit a task
+        function editTask(taskTextSpan) {
+            const newText = prompt('Edit task:', taskTextSpan.textContent);
+            if (newText !== null) {
+                taskTextSpan.textContent = newText.trim();
+            }
+        }
+
+        // Function to delete a task
+        function deleteTask(taskCard) {
+            taskCard.remove();
+        }
+
+        // Function to move a task to a different section
+        function moveTaskToSection(taskCard, sectionId) {
+            const targetSection = document.getElementById(sectionId);
+            targetSection.appendChild(taskCard);
+        }
+
+        // Function to toggle collapsible sections
+        function toggleCollapsible(element) {
+            element.classList.toggle('active');
+            const content = element.nextElementSibling;
+            content.classList.toggle('active');
+        }
+
+        // Drag and Drop Functions
+        let draggedTask = null;
+
+        function handleDragStart(event) {
+            draggedTask = this;
+            setTimeout(() => {
+                this.classList.add('dragging');
+            }, 0);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            if (draggedTask === this) return;
+
+            const container = this.parentNode;
+            const afterElement = getDragAfterElement(container, event.clientY);
+            if (afterElement == null) {
+                container.appendChild(draggedTask);
+            } else {
+                container.insertBefore(draggedTask, afterElement);
+            }
+            draggedTask.classList.remove('dragging');
+            draggedTask = null;
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+    </script>
+</body>
+</html>
